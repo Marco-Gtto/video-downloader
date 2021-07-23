@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <title>Video&Audio Downloader</title>
+  </head>
+  <body>
+      <div class="container">
+          <div class="title-container">
+              <h3>Video&Audio Downloader</h3>
+          </div>
+          <div class="form-container">
+            <form name="dataForm">
+                <label for="url">VIDEO URL</label>
+                <input type="url" name="URL" id="video-url-input">
+                <p>Seleziona il formato del file di destinazione:</p>  
+                <input type="radio" name="format" value="MP3">MP3 
+                <input type="radio" name="format" value="MP4">MP4
+                <button id="sub-but" onclick="receiveData()">Avvia</button>
+            </form>
+          </div>
+          <div class="status-container">
+              <h5>Stato: <span id="state">In attesa</span></h5>
+          </div>
+      </div>
+      <script>
+        const {ipcRenderer} = require('electron')
+        const receiveData = () => {
+            let video_url = document.getElementById("video-url-input").value;
+            let format = document.dataForm.elements["format"].value;
+
+            ipcRenderer.send('selectDirectory');
+
+            let form_data = {
+              video_url: video_url,
+              format: format
+            }
+            // send username to main.js 
+            ipcRenderer.send('formData', form_data)
+
+        }
+        ipcRenderer.on('elaborating', (event, arg) => {
+          document.getElementById("state").textContent = "In elaborazione";
+        })
+
+        ipcRenderer.on('completed', (event, arg) => {
+          document.getElementById("state").textContent = "Completato";
+          document.getElementById("state").style.color = 'green';
+        })
+      </script>
+      <script src="renderer.js"></script>
+  </body>
+</html>
